@@ -30,8 +30,8 @@ public class TodoItemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetTodoItems(string userName)
     {
-        List<TodoItemDTO> todoItems;
         _userName = userName;
+        List<TodoItemDTO> todoItems;
         // Get the cached items
         todoItems = await GetCache();
         // IF there are no cached items, get them from the database
@@ -59,6 +59,7 @@ public class TodoItemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TodoItemDTO>> GetTodoItem(long id, string userName)
     {
+        _userName = userName;
         var todoItems = await GetCache();
         TodoItemDTO? todoItem = null;
         if (todoItems.Count == 0)
@@ -88,6 +89,7 @@ public class TodoItemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PutTodoItem(long id, TodoItemDTO todoDTO, string userName)
     {
+        _userName = userName;
         if (id != todoDTO.Id)
         {
             return BadRequest();
@@ -124,6 +126,7 @@ public class TodoItemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TodoItemDTO>> PostTodoItem(TodoItemDTO todoDTO, string userName)
     {
+        _userName = userName;
         var todoItem = new TodoItem
         {
             Id = DateTime.Now.Ticks,
@@ -156,6 +159,7 @@ public class TodoItemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteTodoItem(long id, string userName)
     {
+        _userName = userName;
         var todoItem = await _context.TodoItems.WithPartitionKey(userName).FirstAsync(x => x.Id == id);
         if (todoItem == null)
         {
