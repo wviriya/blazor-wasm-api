@@ -1,0 +1,45 @@
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - TodoList
+
+pool:
+  name: default
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    version: '7.x'
+
+- script: dotnet workload install wasm-tools
+  displayName: Install wasm-tools
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: build
+    projects: 'TodoList/*.csproj'
+    arguments: '-c $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: Publish
+  inputs:
+    command: publish
+    publishWebProjects: true
+    projects: 'TodoList/*.csproj'
+    arguments: '-c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: true
+
+- task: AzureWebApp@1
+  displayName: Deploy to Azure
+  inputs:
+    azureSubscription: 'AZURE_SUBSCRIPTION'
+    appType: 'webApp'
+    appName: 'wv-todos-web'
+    package: '$(Build.ArtifactStagingDirectory)/TodoList.zip'
