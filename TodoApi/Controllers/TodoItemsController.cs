@@ -31,6 +31,7 @@ public class TodoItemsController : ControllerBase
     public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetTodoItems(string userName)
     {
         List<TodoItemDTO> todoItems;
+        _userName = userName;
         // Get the cached items
         todoItems = await GetCache();
         // IF there are no cached items, get them from the database
